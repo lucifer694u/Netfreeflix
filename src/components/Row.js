@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/Row.css";
 import axios from "../axios";
-import YouTube from "react-youtube";
+import Youtube from "react-youtube";
 import movieTrailer from "movie-trailer";
 
 const base_url = "https://image.tmdb.org/t/p/original/";
@@ -26,25 +26,18 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
       autoplay: 1,
     },
   };
-  const handleClick = (movie) => {
-    //console.log(movie.name);
-    if(trailerUrl)
-    {
-      setTrailerUrl('');
-    }else{
-   
-      movieTrailer(movie?.name || "Hulk")
-      .then((url) =>{
-        console.log(movie.name);
-        console.log(url);
-        const urlParams = new URLSearchParams(new URL(url).search)
-        setTrailerUrl(urlParams.get("v"))
-        
-       // setTrailerUrl("https://www.youtube.com/watch?v=XtMThy8QKqU&t=8602s")
-      })
-      .catch((error) => console.log(error));
+
+  const handleClick = async (movie) => {
+    if (trailerUrl) {
+      setTrailerUrl("");
+    } else {
+      let trailerurl = await axios.get(
+        `/movie/${movie.id}/videos?api_key=fb34530271b349314af0de263d16ab5a`
+      );
+      setTrailerUrl(trailerurl.data.results[0]?.key);
     }
-  }
+  };
+
   return (
     <div className="row">
       <h2>{title}</h2>
@@ -65,7 +58,7 @@ function Row({ title, fetchUrl, isLargeRow = false }) {
             )
         )}
       </div>
-      {trailerUrl && <YouTube videoId={trailerUrl} opts={opts} />}
+      {trailerUrl && <Youtube videoId={trailerUrl} opts={opts} />}
     </div>
   );
 }
